@@ -1,4 +1,4 @@
-let state = { board: Array(6).fill('').map(() => Array(7).fill('')), turn: "red" }
+let state = { board: Array(6).fill("").map(() => Array(7).fill("")), turn: "red" }
 
 function elt(type, attrs, ...children) {
     let node = document.createElement(type)
@@ -17,9 +17,9 @@ function showBoard() {
     state.board.forEach((line, indexLine) => {
         line.forEach((field, indexColumn) => {
             const fieldNode = elt("div", { class: "field", "data-line": indexLine, "data-column": indexColumn, onclick: "placePiece(this)" })
-            if (field == 'r') {
+            if (field === 'r') {
                 fieldNode.appendChild(elt("div", { class: "red piece" }))
-            } else if (field == 'b') {
+            } else if (field === 'b') {
                 fieldNode.appendChild(elt("div", { class: "blue piece" }))
             }
             newBoard.appendChild(fieldNode)
@@ -30,9 +30,21 @@ function showBoard() {
 }
 
 function placePiece(field) {
-    state.board[field.dataset.line][field.dataset.column] = state.turn === "red" ? "r" : "b"
-    changeTurn()
-    showBoard()
+    const freePosition = getFreePosition(field.dataset.column)
+    if (freePosition != -1) {
+        state.board[freePosition][field.dataset.column] = state.turn === "red" ? "r" : "b"
+        changeTurn()
+        showBoard()
+    }
+}
+
+function getFreePosition(column) {
+    for (let lineIndex = state.board.length - 1; lineIndex >= 0; lineIndex--) {
+        if (state.board[lineIndex][column] === '') {
+            return lineIndex
+        }
+    }
+    return -1
 }
 
 function changeTurn() {
