@@ -46,4 +46,7 @@ function placePiece(field) {
 
 function changeTurn() {
     state.turn = (state.turn === "red") ? "blue" : "red"
+    turnElement = document.getElementById("turn")
+    turnElement.className = state.turn
+    turnElement.textContent = state.turn
 }
