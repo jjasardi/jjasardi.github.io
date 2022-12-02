@@ -1,4 +1,13 @@
-let state = Array(6).fill('').map(el => Array(7).fill(''))
+let state = {
+    board: [
+        ['', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', ''],
+        ['', '', '', '', '', '', '']
+    ], turn: "red"
+}
 
 function elt(type, attrs, ...children) {
     let node = document.createElement(type)
@@ -13,32 +22,28 @@ function elt(type, attrs, ...children) {
 }
 
 function showBoard() {
-    board = document.getElementsByClassName("board")[0];
-    state.forEach((line) => {
-        line.forEach(field => {
-            if (field == '') {
-                board.appendChild(
-                    elt("div", { class: "field" })
-                )
-            } else if (field == 'r') {
-                board.appendChild(
-                    elt("div", { class: "field" },
-                        elt("div", { class: "red piece" }))
-                )
+    const newBoard = elt("div", { class: "board" })
+    state.board.forEach((line, indexLine) => {
+        line.forEach((field, indexColumn) => {
+            const fieldNode = elt("div", { class: "field", "data-line": indexLine, "data-column": indexColumn, onclick: "placePiece(this)" })
+            if (field == 'r') {
+                fieldNode.appendChild(elt("div", { class: "red piece" }))
             } else if (field == 'b') {
-                board.appendChild(
-                    elt("div", { class: "field" },
-                        elt("div", { class: "blue piece" }))
-                )
+                fieldNode.appendChild(elt("div", { class: "blue piece" }))
             }
+            newBoard.appendChild(fieldNode)
         })
     })
+    const oldBoard = document.querySelector("div.board")
+    document.querySelector("body").replaceChild(newBoard, oldBoard)
+}
 
+function placePiece(field) {
+    state.board[field.dataset.line][field.dataset.column] = state.turn === "red" ? "r" : "b"
+    changeTurn()
+    showBoard()
+}
 
-    // const fields = document.getElementsByClassName("field")
-    // Array.from(fields).forEach((field) => {
-    //     if (Math.random) {
-    //         field.appendChild(elt("div", { class:}))
-    //     }
-    // })
+function changeTurn() {
+    state.turn = (state.turn === "red") ? "blue" : "red"
 }
