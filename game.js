@@ -1,13 +1,4 @@
-let state = {
-    board: [
-        ['', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', ''],
-        ['', '', '', '', '', '', '']
-    ], turn: "red"
-}
+let state = { board: Array(6).fill('').map(() => Array(7).fill('')), turn: "red" }
 
 function elt(type, attrs, ...children) {
     let node = document.createElement(type)
@@ -46,7 +37,17 @@ function placePiece(field) {
 
 function changeTurn() {
     state.turn = (state.turn === "red") ? "blue" : "red"
+    showTurn()
+}
+
+function showTurn() {
     turnElement = document.getElementById("turn")
     turnElement.className = state.turn
     turnElement.textContent = state.turn
+}
+
+function startNewGame() {
+    state = { board: Array(6).fill('').map(() => Array(7).fill('')), turn: "red" }
+    showBoard()
+    showTurn()
 }
