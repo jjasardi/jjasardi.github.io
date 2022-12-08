@@ -1,4 +1,4 @@
-function connect4Winner(player, board) {
+function checkWinner(player, board) {
     return checkHoriziontally(player, board) || checkVertically(player, board) || checkAscendingDiagonally(player, board) || checkDescendingDiagonally(player, board)
 }
 
@@ -58,4 +58,4 @@ function checkDescendingDiagonally(player, board) {
     return false
 }
 
-export { connect4Winner }
+export { checkWinner }

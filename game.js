@@ -1,6 +1,6 @@
-import { connect4Winner } from './connect4-winner.js';
+import { checkWinner } from './connect4-winner.js';
 
-let state = { board: Array(6).fill("").map(() => Array(7).fill("")), turn: "red" }
+let state = { board: Array(6).fill("").map(() => Array(7).fill("")), turn: "red", gameOver: false }
 
 document.getElementById("newGameBtn").addEventListener("click", () => startNewGame())
 
@@ -31,7 +31,9 @@ function showBoard() {
     })
     const oldBoard = document.querySelector("div.board")
     document.querySelector("body").replaceChild(newBoard, oldBoard)
-    addClickFunctionToFields()
+    if (!state.gameOver) {
+        addClickFunctionToFields()
+    }
 }
 
 function addClickFunctionToFields() {
@@ -45,12 +47,23 @@ function placePiece(field) {
     if (freePosition != -1) {
         const stateTurnShort = state.turn === "red" ? "r" : "b"
         state.board[freePosition][field.dataset.column] = stateTurnShort
+        if (checkWinner(stateTurnShort, state.board)) {
+            handleWin()
+        }
         showBoard()
-        if (connect4Winner(stateTurnShort, state.board)) {
-            window.alert(`Congratulation! ${state.turn} has won. refresh the page to start a new game. Please support me donating with 8xmille to the Catholic Church :_(`)
-        }//TODO change
         changeTurn()
     }
+}
+
+function handleWin() {
+    state.gameOver = true
+    showWinner()
+}
+
+function showWinner() {
+    const winnerElement = document.getElementById("winner")
+    winnerElement.className = state.gameOver === true ? state.turn : ""
+    winnerElement.textContent = state.gameOver === true ? `Congratulation! ${state.turn} has won. Please support me donating with 8xmille to the Catholic Church :_(` : ""
 }
 
 function getFreePosition(column) {
@@ -63,8 +76,10 @@ function getFreePosition(column) {
 }
 
 function changeTurn() {
-    state.turn = (state.turn === "red") ? "blue" : "red"
-    showTurn()
+    if (!state.gameOver) {
+        state.turn = (state.turn === "red") ? "blue" : "red"
+        showTurn()
+    }
 }
 
 function showTurn() {
@@ -74,9 +89,10 @@ function showTurn() {
 }
 
 function startNewGame() {
-    state = { board: Array(6).fill('').map(() => Array(7).fill('')), turn: "red" }
+    state = { board: Array(6).fill('').map(() => Array(7).fill('')), turn: "red", gameOver: false }
     showBoard()
     showTurn()
+    showWinner()
 }
 
 export { showTurn, showBoard }
