@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Vier gewinnt</title>
-    <script type="text/javascript" src="game.js"></script>
+    <script type="module" src="./game.js"></script>
 
     <style>
         div {
@@ -54,13 +54,15 @@
 
 <body>
     <h1 id="turn">
-        <script>showTurn()</script>
+        <script type="module">
+            import { showTurn } from "./game.js"
+            showTurn()</script>
     </h1>
-    <button onclick=startNewGame()>new game</button>
+    <button id=newGameBtn>new game</button>
     <div class="board"></div>
-    <script>
-        showBoard()
-    </script>
+    <script type="module">
+        import { showBoard } from "./game.js"
+        showBoard()</script>
 </body>
 
 </html>
