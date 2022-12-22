@@ -1,9 +1,11 @@
-import { checkWinner } from './connect4-winner.js';
+import { checkWinner } from './connect4-winner.js'
 import { render } from './lib/suiweb.js'
 
 let state = { board: Array(6).fill("").map(() => Array(7).fill("")), turn: "red", gameOver: false }
 
 document.getElementById("newGameBtn").addEventListener("click", () => startNewGame())
+document.getElementById("saveLocallyBtn").addEventListener("click", () => saveStateLocally())
+document.getElementById("loadLocallyBtn").addEventListener("click", () => loadStateLocally())
 
 const App = () => [Board, { board: state.board }]
 
@@ -93,6 +95,17 @@ function startNewGame() {
     showBoard()
     showTurn()
     showWinner()
+}
+
+function saveStateLocally() {
+    localStorage.setItem("state", JSON.stringify(state))
+    showBoard()
+}
+
+
+function loadStateLocally() {
+    state = JSON.parse(localStorage.getItem("state"))
+    showBoard()
 }
 
 export { showTurn, showBoard }
