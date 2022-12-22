@@ -1,39 +1,39 @@
 import { checkWinner } from './connect4-winner.js';
+import { render } from './lib/suiweb.js'
 
 let state = { board: Array(6).fill("").map(() => Array(7).fill("")), turn: "red", gameOver: false }
 
 document.getElementById("newGameBtn").addEventListener("click", () => startNewGame())
 
-function elt(type, attrs, ...children) {
-    let node = document.createElement(type)
-    Object.keys(attrs).forEach(key => {
-        node.setAttribute(key, attrs[key])
-    })
-    for (let child of children) {
-        if (typeof child != "string") node.appendChild(child)
-        else node.appendChild(document.createTextNode(child))
+const App = () => [Board, { board: state.board }]
+
+const Board = ({ board }) => {
+    let flatBoard = [].concat(...board)
+    let fields = flatBoard.map((type, index) => [Field, { type, index }])
+    return (
+        ["div", { className: "board" }, ...fields]
+    )
+}
+
+const Field = ({ type, index }) => {
+    const lineIndex = Math.floor(index / 7)
+    const columnIndex = index % 7
+    let fieldElement = ["div", { className: "field", "line": lineIndex, "column": columnIndex }]
+    if (type === "r") {
+        fieldElement.push(["div", { className: "red piece" }])
+    } else if (type === "b") {
+        fieldElement.push(["div", { className: "blue piece" }])
     }
-    return node
+    return fieldElement
 }
 
 function showBoard() {
-    const newBoard = elt("div", { class: "board" })
-    state.board.forEach((line, indexLine) => {
-        line.forEach((field, indexColumn) => {
-            const fieldNode = elt("div", { class: "field", "data-line": indexLine, "data-column": indexColumn })
-            if (field === 'r') {
-                fieldNode.appendChild(elt("div", { class: "red piece" }))
-            } else if (field === 'b') {
-                fieldNode.appendChild(elt("div", { class: "blue piece" }))
-            }
-            newBoard.appendChild(fieldNode)
-        })
-    })
-    const oldBoard = document.querySelector("div.board")
-    document.querySelector("body").replaceChild(newBoard, oldBoard)
+    const app = document.querySelector(".app")
+    render([App], app)
     if (!state.gameOver) {
         addClickFunctionToFields()
     }
+    return app // TODO why?
 }
 
 function addClickFunctionToFields() {
@@ -43,10 +43,10 @@ function addClickFunctionToFields() {
 }
 
 function placePiece(field) {
-    const freePosition = getFreePosition(field.dataset.column)
+    const freePosition = getFreePosition(field.column)
     if (freePosition != -1) {
         const stateTurnShort = state.turn === "red" ? "r" : "b"
-        state.board[freePosition][field.dataset.column] = stateTurnShort
+        state.board[freePosition][field.column] = stateTurnShort
         if (checkWinner(stateTurnShort, state.board)) {
             handleWin()
         }
