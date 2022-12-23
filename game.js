@@ -1,13 +1,19 @@
 import { checkWinner } from './connect4-winner.js'
 import { render } from './lib/suiweb.js'
+import { setInList, setInObj } from './util.js'
 
 let state = { board: Array(6).fill("").map(() => Array(7).fill("")), turn: "red", gameOver: false }
+let stateSeq = []
 
-document.getElementById("newGameBtn").addEventListener("click", () => startNewGame())
-document.getElementById("saveLocallyBtn").addEventListener("click", () => saveStateLocally())
-document.getElementById("loadLocallyBtn").addEventListener("click", () => loadStateLocally())
-
-const App = () => [Board, { board: state.board }]
+const App = () =>
+    ["div",
+        ["h1", { id: "turn" }],
+        ["h1", { id: "winner" }],
+        ["button", { id: "newGameBtn", onclick: startNewGame }, "new game"],
+        ["button", { id: "saveLocallyBtn", onclick: saveStateLocally }, "save locally"],
+        ["button", { id: "loadLocallyBtn", onclick: loadStateLocally }, "load locally"],
+        ["button", { id: "undoBtn", onclick: undo }, "undo last move"],
+        [Board, { board: state.board }]]
 
 const Board = ({ board }) => {
     let flatBoard = [].concat(...board)
@@ -29,13 +35,22 @@ const Field = ({ type, index }) => {
     return fieldElement
 }
 
+function initializeGame() {
+    showState()
+}
+
+function showState() {
+    showBoard()
+    showTurn()
+    showWinner()
+}
+
 function showBoard() {
     const app = document.querySelector(".app")
     render([App], app)
     if (!state.gameOver) {
         addClickFunctionToFields()
     }
-    return app // TODO why?
 }
 
 function addClickFunctionToFields() {
@@ -47,19 +62,19 @@ function addClickFunctionToFields() {
 function placePiece(field) {
     const freePosition = getFreePosition(field.column)
     if (freePosition != -1) {
+        stateSeq.push(state)
         const stateTurnShort = state.turn === "red" ? "r" : "b"
-        state.board[freePosition][field.column] = stateTurnShort
+        state = setInObj(state, "board", setInList(state.board, freePosition, setInList(state.board[freePosition], field.column, stateTurnShort)))
         if (checkWinner(stateTurnShort, state.board)) {
             handleWin()
         }
-        showBoard()
+        showState()
         changeTurn()
     }
 }
 
 function handleWin() {
-    state.gameOver = true
-    showWinner()
+    state = setInObj(state, "gameOver", true)
 }
 
 function showWinner() {
@@ -79,7 +94,7 @@ function getFreePosition(column) {
 
 function changeTurn() {
     if (!state.gameOver) {
-        state.turn = (state.turn === "red") ? "blue" : "red"
+        state = setInObj(state, "turn", (state.turn === "red") ? "blue" : "red")
         showTurn()
     }
 }
@@ -91,21 +106,27 @@ function showTurn() {
 }
 
 function startNewGame() {
-    state = { board: Array(6).fill('').map(() => Array(7).fill('')), turn: "red", gameOver: false }
-    showBoard()
-    showTurn()
-    showWinner()
+    window.location.reload(true)
 }
 
 function saveStateLocally() {
     localStorage.setItem("state", JSON.stringify(state))
-    showBoard()
+    localStorage.setItem("stateSeq", JSON.stringify(stateSeq))
+    showState()
 }
 
 
 function loadStateLocally() {
     state = JSON.parse(localStorage.getItem("state"))
-    showBoard()
+    stateSeq = JSON.parse(localStorage.getItem("stateSeq"))
+    showState()
 }
 
-export { showTurn, showBoard }
+function undo() {
+    if (stateSeq.length > 0) {
+        state = stateSeq.pop()
+        showState()
+    }
+}
+
+export { initializeGame }
